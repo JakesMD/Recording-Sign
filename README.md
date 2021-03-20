@@ -8,4 +8,4 @@ This uses rtpMIDI (with the help of Tobias Erichsen's [rtpMIDI](https://www.tobi
 
 ## Getting Started
 - Visit [medium.com](https://jakesmd.medium.com/how-to-make-a-wifi-recording-sign-for-your-home-studio-f672b03b75f9) or [instructables.com](https://www.instructables.com/Wifi-Recording-Sign-Controlled-by-Your-DAW/) for a detailed tutorial on how to make your own for less than $20.
-- Visit [thingiverse.com](https://www.thingiverse.com/thing:4768487) for more info on 3D printing an awesome case for it.
+- Visit [thingiverse.com](https://www.thingiverse.com/thing:4800637) for more info on 3D printing an awesome case for it.
