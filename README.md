@@ -11,7 +11,7 @@ This uses rtpMIDI (with the help of Tobias Erichsen's [rtpMIDI](https://www.tobi
 - Visit [thingiverse.com](https://www.thingiverse.com/thing:4800637) for more info on 3D printing an awesome case for it.
 
 ---
-# Recording Sign 2.0 is coming a soon!!!
+# Recording Sign 2.0 is coming soon!!!
 Love the Recording Sign? Well keep an eye out because the next version is coming as soon as I have time!
 ## Problems with the current version:
 - WiFi credentials are hardcoded. This means the user has to edit the code and people with no programming experience will find that a bit intimidating.
