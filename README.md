@@ -12,7 +12,7 @@ This uses rtpMIDI (with the help of Tobias Erichsen's [rtpMIDI](https://www.tobi
 
 ---
 # Recording Sign 2.0 is coming a soon!!!
-Love the Recording Sign? Well keep an eye out because the next version is coming soon as soon as I have time!
+Love the Recording Sign? Well keep an eye out because the next version is coming as soon as I have time!
 ## Problems with the current version:
 - WiFi credentials are hardcoded. This means the user has to edit the code and people with no programming experience will find that a bit intimidating.
 - The user has to install some "random" software to upload the code but will never need the software again.
