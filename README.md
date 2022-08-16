@@ -35,3 +35,4 @@ Love the Recording Sign? Well keep an eye out because the next version is coming
 - Make it battery powered.
 - A new case design.
 - A custom PCB.
+- YouTube video and YouTube Short
