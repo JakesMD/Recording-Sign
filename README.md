@@ -21,7 +21,7 @@ Love the Recording Sign? Well keep an eye out because the next version is coming
 
 ## Coming soon:
 - Enter the WiFi credentials from your smartphone.
-- Upload the code from a website via the (esptool-js)[https://github.com/espressif/esptool-js] package.
+- Upload the code from a website via the [esptool-js](https://github.com/espressif/esptool-js) package.
 - 100% guaranteed it will work on MacOS now that I have the possibility to test it.
 - Clever power saving stuff.
 - OTA (automatically updates the code from the latest version on GitHub)
