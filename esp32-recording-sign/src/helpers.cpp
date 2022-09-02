@@ -3,7 +3,7 @@
 // Returns an IPAddress from the given string, e.g. "192.168.4.1" to IPAddress(192,168,4,1).
 IPAddress ipAddressFromChar(const char *ipStr) {
     IPAddress newIP;
-    sscanf(ipStr, "%d.%d.%d.%d", newIP[0], newIP[1], newIP[2], newIP[3]);
+    sscanf(ipStr, "%d.%d.%d.%d", &newIP[0], &newIP[1], &newIP[2], &newIP[3]);
     return newIP;
 }
 
