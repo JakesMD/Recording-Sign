@@ -1,6 +1,9 @@
+#ifndef htmlFiles_h
+#define htmlFiles_h
+
 #include <Arduino.h>
 
-const char index_html[] PROGMEM = R"rawliteral(
+const char indexHTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 
 <html>
@@ -86,7 +89,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             <input type="text" id="deviceName" name="deviceName" value="Recording Sign" maxlength="30"><br>
 
             <label for="midiControlNum">MIDI Control Number</label><br>
-            <input type="number" id="midiControlNum" name="midiControlNum" value="1" min="1" max="127"><br>
+            <input type="number" id="midiControlNum" name="midiControlNum" value="1" min="0" max="127"><br>
 
             <label for="controlType">Control Type</label><br>
             <select id="controlType" name="controlType">
@@ -112,7 +115,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 
-const char info_html[] PROGMEM = R"rawliteral(
+const char infoHTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 
 <html>
@@ -154,3 +157,5 @@ const char info_html[] PROGMEM = R"rawliteral(
 
 </html>
 )rawliteral";
+
+#endif

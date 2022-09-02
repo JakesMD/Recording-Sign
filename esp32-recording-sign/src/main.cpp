@@ -1,16 +1,20 @@
 #include <Arduino.h>
 
+#include "PrefsService.h"
 #include "WiFiService.h"
 
+PrefsService prefs;
 WiFiService wifiSvc;
 
 void setup() {
     Serial.begin(115200);  // Start the serial.
+    prefs.begin();         // Start the PrefsService.
 
-    wifiSvc.wifiConfig("", "", IPAddress(192, 168, 2, 178), "Recording Sign");
-    wifiSvc.settingsConfig(5, NEOPIXEL_STRIP, 5, 16);
+    // Configure the WiFiService.
+    wifiSvc.wifiConfig(prefs.getSSID(), prefs.getPassword(), prefs.getIPAddress(), prefs.getDeviceName());
+    wifiSvc.settingsConfig(prefs.getMIDIControlNum(), prefs.getControlType(), prefs.getGPIOPin(), prefs.getPixelCount());
 
-    wifiSvc.begin();
+    wifiSvc.begin();  // Start the WiFiService.
 }
 
 void loop() {}
