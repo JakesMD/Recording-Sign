@@ -65,7 +65,7 @@ void WiFiService::_setupServer() {
 
     // Callback for when a device taps the submit button on the captive portal.
     server.on("/get", HTTP_GET, [&](AsyncWebServerRequest *request) {
-        Serial.print(F("\n\n[WIFI] User has submitted."));
+        Serial.print(F("\n[WIFI] User has submitted."));
         if (request->hasParam("ssid")) {
             ssid = request->getParam("ssid")->value().c_str();
             Serial.print(F("\n[WIFI] SSID: "));
@@ -102,12 +102,12 @@ void WiFiService::_setupServer() {
             Serial.print(gpioPin);
         }
         if (request->hasParam("pixelCount")) {
-            pixelCount = atoi(request->getParam("pixelCount")->value().c_str());
+            pixelCount = strtol(request->getParam("pixelCount")->value().c_str(), NULL, 0);
             Serial.print(F("\n[WIFI] Pixel count: "));
             Serial.print(pixelCount);
         }
         request->send_P(200, "text/html", infoHTML);
-        Serial.print(F("\n"));
+        _onSave();
     });
 
     Serial.print(F("\n[WIFI] Set up server."));
@@ -127,7 +127,9 @@ void WiFiService::_startServer() {
 }
 
 // Connects to the wifi network or starts the captive portal AP.
-void WiFiService::begin() {
+void WiFiService::begin(void (*newOnSave)()) {
+    _onSave = newOnSave;
+
     _setupServer();
     _startServer();
 
