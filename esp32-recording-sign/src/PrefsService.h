@@ -4,10 +4,9 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
-#include "WiFiService.h"
 #include "helpers.h"
 
-// The class that handles getting and saving settings.
+// The service that handles fetching and saving settings from and to the ESP32.
 class PrefsService {
    public:
     PrefsService();
@@ -31,9 +30,6 @@ class PrefsService {
     ControlType getControlType();
     void saveControlType(const ControlType controlType);
 
-    uint8_t getGPIOPin();
-    void saveGPIOPin(const uint8_t gpioPin);
-
     uint16_t getPixelCount();
     void savePixelCount(const uint16_t pixelCount);
 
@@ -44,17 +40,19 @@ class PrefsService {
     void _reset();
 
     template <typename T>
-    void _printReadLog(const char* key, T value);
+    void _printReadLog(const char* key, T value, const bool obscureValue = false);
 
     template <typename T>
-    void _printWriteLog(const char* key, T value);
+    void _printWriteLog(const char* key, T value, const bool obscureValue = false);
 
     uint8_t _readUInt8(const char* key, const uint8_t defaultValue);
     void _writeUInt8(const char* key, const uint8_t value);
+
     uint16_t _readUInt16(const char* key, const uint16_t defaultValue);
     void _writeUInt16(const char* key, const uint16_t value);
-    const char* _readConstChar(const char* key, const char* defaultValue);
-    void _writeConstChar(const char* key, const char* value);
+
+    const char* _readConstChar(const char* key, const char* defaultValue, const bool obscureValue = false);
+    void _writeConstChar(const char* key, const char* value, const bool obscureValue = false);
 
     Preferences _prefs;
 };

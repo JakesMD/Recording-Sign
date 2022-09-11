@@ -1,5 +1,9 @@
 #include "PrefsService.h"
 
+// ----------------------------------------------------------------------------
+// Initialization
+// ----------------------------------------------------------------------------
+
 PrefsService::PrefsService() {}
 
 // Initializes the Preferences and resets the space if used for the first time.
@@ -12,9 +16,9 @@ void PrefsService::begin() {
     Serial.print(F("\n[PREFS] Started."));
 }
 
-// ********************************
-// Opening and closing the space. *
-// ********************************
+// ----------------------------------------------------------------------------
+// Opening and closing the space
+// ----------------------------------------------------------------------------
 
 // Opens the Preferences space.
 void PrefsService::_openSpace(const bool readOnly) {
@@ -26,9 +30,9 @@ void PrefsService::_closeSpace() {
     _prefs.end();
 }
 
-// **********************
-// Resetting the space. *
-// **********************
+// ----------------------------------------------------------------------------
+// Resetting the space
+// ----------------------------------------------------------------------------
 
 // Resets the space to the default values if used for the first time.
 void PrefsService::_reset() {
@@ -39,14 +43,13 @@ void PrefsService::_reset() {
 
         _prefs.clear();
 
-        saveSSID("hi");
+        saveSSID("");
         savePassword("");
         saveIPAddress(IPAddress(0, 0, 0, 0));
         saveDeviceName("Recording Sign");
-        saveMIDIControlNum(0);
+        saveMIDIControlNum(1);
         saveControlType(NEOPIXEL_STRIP);
-        saveGPIOPin(8);
-        savePixelCount(18);
+        savePixelCount(16);
 
         Serial.print(F("\n[PREFS] Reset."));
     }
@@ -54,31 +57,39 @@ void PrefsService::_reset() {
     _closeSpace();
 }
 
-// *******************************
-// Printing read and write logs. *
-// *******************************
+// ----------------------------------------------------------------------------
+// Printing read and write log
+// ----------------------------------------------------------------------------
 
 // Prints a log when reading from the space.
 template <typename T>
-void PrefsService::_printReadLog(const char* key, T value) {
+void PrefsService::_printReadLog(const char* key, T value, const bool obscureValue) {
     Serial.print(F("\n[PREFS] Read "));
     Serial.print(key);
     Serial.print(F(": "));
-    Serial.print(value);
+    if (!obscureValue) {
+        Serial.print(value);
+    } else {
+        Serial.print(F("(obscured)"));
+    }
 }
 
 // Prints a log when writing to the space.
 template <typename T>
-void PrefsService::_printWriteLog(const char* key, T value) {
+void PrefsService::_printWriteLog(const char* key, T value, const bool obscureValue) {
     Serial.print(F("\n[PREFS] Wrote "));
     Serial.print(key);
     Serial.print(F(": "));
-    Serial.print(value);
+    if (!obscureValue) {
+        Serial.print(value);
+    } else {
+        Serial.print(F("(obscured)"));
+    }
 }
 
-// ***********************************
-// Reading and writing to the space. *
-// ***********************************
+// ----------------------------------------------------------------------------
+// Reading and writing to the space
+// ----------------------------------------------------------------------------
 
 // Reads a uint8_t from the space.
 uint8_t PrefsService::_readUInt8(const char* key, const uint8_t defaultValue) {
@@ -119,27 +130,31 @@ void PrefsService::_writeUInt16(const char* key, const uint16_t value) {
 }
 
 // Reads a const char* from the space.
-const char* PrefsService::_readConstChar(const char* key, const char* defaultValue) {
+const char* PrefsService::_readConstChar(const char* key, const char* defaultValue, const bool obscureValue) {
     _openSpace(true);
-    const char* value = _prefs.getString(key, defaultValue).c_str();
-    _printReadLog(key, value);
+
+    const String valueStr = _prefs.getString(key, defaultValue);
+    char* value = new char[valueStr.length() + 1];
+    strcpy(value, valueStr.c_str());
+
+    _printReadLog(key, value, obscureValue);
     _closeSpace();
     return value;
 }
 
 // Writes a const char* to the space.
-void PrefsService::_writeConstChar(const char* key, const char* value) {
+void PrefsService::_writeConstChar(const char* key, const char* value, const bool obscureValue) {
     _openSpace(false);
     if (!_prefs.isKey(key) || _prefs.getString(key).c_str() != value) {
         _prefs.putString(key, value);
-        _printWriteLog(key, value);
+        _printWriteLog(key, value, obscureValue);
     }
     _closeSpace();
 }
 
-// *******************************************
-// Getting and saving settings to the space. *
-// *******************************************
+// ----------------------------------------------------------------------------
+// Fetching and saving settings from and to the space.
+// ----------------------------------------------------------------------------
 
 // Reads the ssid from the space.
 const char* PrefsService::getSSID() {
@@ -157,13 +172,13 @@ void PrefsService::saveSSID(const char* ssid) {
 
 // Reads the password from the space.
 const char* PrefsService::getPassword() {
-    return _readConstChar("password", "");
+    return _readConstChar("password", "", true);
 };
 
 // Writes the password to the space.
 void PrefsService::savePassword(const char* password) {
     if (sizeof(password) / sizeof(char) < 30) {
-        _writeConstChar("password", password);
+        _writeConstChar("password", password, true);
     } else {
         Serial.print(F("\n[PREFS][WARNING] Save password declined."));
     }
@@ -172,10 +187,10 @@ void PrefsService::savePassword(const char* password) {
 // Reads the IP address from the space.
 IPAddress PrefsService::getIPAddress() {
     IPAddress newIP;
-    newIP[0] = _readUInt8("ipAddres0", 0);
-    newIP[1] = _readUInt8("ipAddres1", 1);
-    newIP[2] = _readUInt8("ipAddres2", 2);
-    newIP[3] = _readUInt8("ipAddres3", 3);
+    newIP[0] = _readUInt8("ipAddress0", 0);
+    newIP[1] = _readUInt8("ipAddress1", 1);
+    newIP[2] = _readUInt8("ipAddress2", 2);
+    newIP[3] = _readUInt8("ipAddress3", 3);
     return newIP;
 };
 
@@ -223,20 +238,6 @@ ControlType PrefsService::getControlType() {
 // Writes the control type to the space.
 void PrefsService::saveControlType(const ControlType controlType) {
     _writeConstChar("controlType", controlTypeToChar(controlType));
-}
-
-// Reads the GPIO pin from the space.
-uint8_t PrefsService::getGPIOPin() {
-    return _readUInt8("gpioPin", 5);
-};
-
-// Writes the GPIO pin to the space.
-void PrefsService::saveGPIOPin(const uint8_t gpioPin) {
-    if (gpioPin >= 0 && gpioPin <= 100) {
-        _writeUInt8("gpioPin", gpioPin);
-    } else {
-        Serial.print(F("\n[PREFS][WARNING] Save gpioPin declined."));
-    }
 }
 
 // Reads the number of pixels from the space.

@@ -12,7 +12,7 @@ const char *ipAddressToChar(const IPAddress ip) {
     char *newIPStr = (char *)malloc(sizeof(char) * 16);
     sprintf(newIPStr, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 
-    // Because we can't call free(newIPStr) here, this may lead to memory space issues.
+    // Because we can't call free(newIPStr) here, this may lead to memory leaks.
 
     return newIPStr;
 }

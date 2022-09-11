@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+typedef void (*voidFunctionCall)();
+typedef bool (*boolFunctionCall)();
+
 IPAddress ipAddressFromChar(const char *ipStr);
 const char *ipAddressToChar(const IPAddress ip);
 

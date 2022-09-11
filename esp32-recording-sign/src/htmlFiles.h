@@ -75,7 +75,7 @@ const char indexHTML[] PROGMEM = R"rawliteral(
     <h1>RECORDING SIGN SETUP</h1>
 
     <form action="/get">
-        <p>
+     
             <label for="ssid">WiFi SSID</label><br>
             <input type="text" id="ssid" name="ssid" required="true" maxlength="50"><br>
 
@@ -99,14 +99,11 @@ const char indexHTML[] PROGMEM = R"rawliteral(
                 <option value="relay">Relay</option>
             </select><br>
 
-            <label for="gpioPin">GPIO Pin</label><br>
-            <input type="number" id="gpioPin" name="gpioPin" value="5" min="0" max="100"><br>
-
             <label for="pixelCount">Number of Pixels (NeoPixel and RGB strip only)</label><br>
             <input type="number" id="pixelCount" name="pixelCount" value="16" min="1" max="1000"><br>
 
             <input type="submit" value="GO!">
-        </p>
+        
     </form>
 
 
