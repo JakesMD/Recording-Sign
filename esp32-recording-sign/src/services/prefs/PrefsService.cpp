@@ -1,5 +1,8 @@
 #include "PrefsService.h"
 
+#define SerialMon Serial
+#include <AppleMIDI.h>  // Needed for AM_DGB serial.
+
 // ----------------------------------------------------------------------------
 // Initialization
 // ----------------------------------------------------------------------------
@@ -8,12 +11,12 @@ PrefsService::PrefsService() {}
 
 // Initializes the Preferences and resets the space if used for the first time.
 void PrefsService::begin() {
-    Serial.print(F("\n[PREFS] Starting..."));
+    AM_DBG(F("[PREFS] Starting..."));
 
     Preferences _prefs;
     _reset();
 
-    Serial.print(F("\n[PREFS] Started."));
+    AM_DBG(F("[PREFS] Started."));
 }
 
 // ----------------------------------------------------------------------------
@@ -39,7 +42,7 @@ void PrefsService::_reset() {
     _openSpace(false);
 
     if (!_prefs.isKey("ssid")) {
-        Serial.print(F("\n[PREFS] Empty. Resetting..."));
+        AM_DBG(F("[PREFS] Empty. Resetting..."));
 
         _prefs.clear();
 
@@ -47,11 +50,10 @@ void PrefsService::_reset() {
         savePassword("");
         saveIPAddress(IPAddress(0, 0, 0, 0));
         saveDeviceName("Recording Sign");
-        saveMIDIControlNum(1);
-        saveControlType(NEOPIXEL_STRIP);
+        saveSetupType(NEOPIXEL_STRIP);
         savePixelCount(16);
 
-        Serial.print(F("\n[PREFS] Reset."));
+        AM_DBG(F("[PREFS] Reset."));
     }
 
     _closeSpace();
@@ -64,26 +66,20 @@ void PrefsService::_reset() {
 // Prints a log when reading from the space.
 template <typename T>
 void PrefsService::_printReadLog(const char* key, T value, const bool obscureValue) {
-    Serial.print(F("\n[PREFS] Read "));
-    Serial.print(key);
-    Serial.print(F(": "));
     if (!obscureValue) {
-        Serial.print(value);
+        AM_DBG(F("[PREFS] Read"), key, F("="), value);
     } else {
-        Serial.print(F("(obscured)"));
+        AM_DBG(F("[PREFS] Read"), key, F("="), F("(obscured)"));
     }
 }
 
 // Prints a log when writing to the space.
 template <typename T>
 void PrefsService::_printWriteLog(const char* key, T value, const bool obscureValue) {
-    Serial.print(F("\n[PREFS] Wrote "));
-    Serial.print(key);
-    Serial.print(F(": "));
     if (!obscureValue) {
-        Serial.print(value);
+        AM_DBG(F("[PREFS] Wrote"), key, F("="), value);
     } else {
-        Serial.print(F("(obscured)"));
+        AM_DBG(F("[PREFS] Wrote"), key, F("="), F("(obscured)"));
     }
 }
 
@@ -166,7 +162,7 @@ void PrefsService::saveSSID(const char* ssid) {
     if (sizeof(ssid) / sizeof(char) < 30) {
         _writeConstChar("ssid", ssid);
     } else {
-        Serial.print(F("\n[PREFS][WARNING] Save ssid declined."));
+        AM_DBG(F("[PREFS][WARNING] Save ssid declined."));
     }
 }
 
@@ -180,7 +176,7 @@ void PrefsService::savePassword(const char* password) {
     if (sizeof(password) / sizeof(char) < 30) {
         _writeConstChar("password", password, true);
     } else {
-        Serial.print(F("\n[PREFS][WARNING] Save password declined."));
+        AM_DBG(F("[PREFS][WARNING] Save password declined."));
     }
 }
 
@@ -212,32 +208,18 @@ void PrefsService::saveDeviceName(const char* deviceName) {
     if (sizeof(deviceName) / sizeof(char) < 30) {
         _writeConstChar("deviceName", deviceName);
     } else {
-        Serial.print(F("\n[PREFS][WARNING] Save deviceName declined."));
+        AM_DBG(F("[PREFS][WARNING] Save deviceName declined."));
     }
 }
 
-// Reads the MIDI control number from the space.
-uint8_t PrefsService::getMIDIControlNum() {
-    return _readUInt8("midiControlNum", 1);
+// Reads the setup type from the space.
+SetupType PrefsService::getSetupType() {
+    return setupTypeFromChar(_readConstChar("setupType", "neoPixelStrip"));
 };
 
-// Writes the MIDI control number to the space.
-void PrefsService::saveMIDIControlNum(const uint8_t midiControlNum) {
-    if (midiControlNum >= 0 && midiControlNum <= 127) {
-        _writeUInt8("midiControlNum", midiControlNum);
-    } else {
-        Serial.print(F("\n[PREFS][WARNING] Save midiControlNum declined."));
-    }
-}
-
-// Reads the control type from the space.
-ControlType PrefsService::getControlType() {
-    return controlTypeFromChar(_readConstChar("controlType", "neoPixel"));
-};
-
-// Writes the control type to the space.
-void PrefsService::saveControlType(const ControlType controlType) {
-    _writeConstChar("controlType", controlTypeToChar(controlType));
+// Writes the setup type to the space.
+void PrefsService::saveSetupType(const SetupType setupType) {
+    _writeConstChar("setupType", setupTypeToChar(setupType));
 }
 
 // Reads the number of pixels from the space.
@@ -250,6 +232,6 @@ void PrefsService::savePixelCount(const uint16_t pixelCount) {
     if (pixelCount >= 0 && pixelCount <= 1000) {
         _writeUInt16("pixelCount", pixelCount);
     } else {
-        Serial.print(F("\n[PREFS][WARNING] Save pixelCount declined."));
+        AM_DBG(F("[PREFS][WARNING] Save pixelCount declined."));
     }
 }

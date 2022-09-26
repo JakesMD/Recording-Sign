@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
-#include "helpers.h"
+#include "helpers/helpers.h"
 
 // The service that handles fetching and saving settings from and to the ESP32.
 class PrefsService {
@@ -24,11 +24,8 @@ class PrefsService {
     const char* getDeviceName();
     void saveDeviceName(const char* deviceName);
 
-    uint8_t getMIDIControlNum();
-    void saveMIDIControlNum(const uint8_t getMIDIControlNum);
-
-    ControlType getControlType();
-    void saveControlType(const ControlType controlType);
+    SetupType getSetupType();
+    void saveSetupType(const SetupType setupType);
 
     uint16_t getPixelCount();
     void savePixelCount(const uint16_t pixelCount);

@@ -88,18 +88,15 @@ const char indexHTML[] PROGMEM = R"rawliteral(
             <label for="deviceName">Device Name</label><br>
             <input type="text" id="deviceName" name="deviceName" value="Recording Sign" maxlength="30"><br>
 
-            <label for="midiControlNum">MIDI Control Number</label><br>
-            <input type="number" id="midiControlNum" name="midiControlNum" value="1" min="0" max="127"><br>
-
-            <label for="controlType">Control Type</label><br>
-            <select id="controlType" name="controlType">
+            <label for="setupType">Setup</label><br>
+            <select id="setupType" name="setupType">
                 <option value="neoPixelStrip">NeoPixel Strip</option>
-                <option value="rgbStrip">RGB Strip</option>
                 <option value="led">LED</option>
+                <option value="rgbLED">RGB Strip</option>
                 <option value="relay">Relay</option>
             </select><br>
 
-            <label for="pixelCount">Number of Pixels (NeoPixel and RGB strip only)</label><br>
+            <label for="pixelCount">Number of Pixels (for NeoPixel strip only)</label><br>
             <input type="number" id="pixelCount" name="pixelCount" value="16" min="1" max="1000"><br>
 
             <input type="submit" value="GO!">
