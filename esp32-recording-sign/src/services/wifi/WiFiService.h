@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 
-#include "helpers.h"
+#include "helpers/helpers.h"
 
 // The service that handles the WiFi connection and the captive portal where the settings are set.
 class WiFiService {
@@ -19,7 +19,7 @@ class WiFiService {
                     const uint16_t captivePortalTimeout,
                     const uint16_t staTimeout);
 
-    void settingsConfig(const uint8_t midiControlNum, const ControlType controlType, const uint16_t pixelCount);
+    void settingsConfig(const SetupType setupType, const uint16_t pixelCount);
 
     void begin(void (*onSave)(), void (*onFailedToConnect)(), void (*onDisconnected)());
 
@@ -28,8 +28,7 @@ class WiFiService {
     const char* deviceName;
     IPAddress ipAddress;
     uint8_t startAPBtnPin;
-    uint8_t midiControlNum;
-    ControlType controlType;
+    SetupType setupType;
     uint16_t pixelCount;
 
    private:

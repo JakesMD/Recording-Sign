@@ -1,13 +1,16 @@
 #include "WiFiService.h"
 
+#define SerialMon Serial
+#include <AppleMIDI.h>  // Needed for AM_DGB serial.
 #include <DNSServer.h>
 #include <WiFi.h>
 
 // This stops the code editor from changing the order of the imports.
+
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
-#include "htmlFiles.h"
+#include "constants/htmlFiles.h"
 
 // ----------------------------------------------------------------------------
 // Definition of the servers
@@ -62,9 +65,8 @@ void WiFiService::wifiConfig(const char *newSSID,
 }
 
 // Sets the user settings for the recording sign in general.
-void WiFiService::settingsConfig(const uint8_t newMIDIControlNum, const ControlType newControlType, const uint16_t newPixelCount) {
-    uint8_t midiControlNum = newMIDIControlNum;
-    ControlType controlType = newControlType;
+void WiFiService::settingsConfig(const SetupType newSetupType, const uint16_t newPixelCount) {
+    SetupType setupType = newSetupType;
     uint16_t pixelCount = newPixelCount;
 }
 
@@ -107,9 +109,7 @@ void WiFiService::_timer(uint16_t (WiFiService::*durationInSecs)(), bool (WiFiSe
         elapsedSecs = (millis() - start) / 1000;
         if (elapsedSecs % 5 == 0) {
             if (!hasPrintedTime) {
-                Serial.print(F("\n[WIFI][TIMER] "));
-                Serial.print((this->*durationInSecs)() - elapsedSecs);
-                Serial.print(F(" seconds left."));
+                AM_DBG(F("[WIFI][TIMER]"), (this->*durationInSecs)() - elapsedSecs, F("seconds left."));
                 hasPrintedTime = true;
             }
         } else {
@@ -118,9 +118,9 @@ void WiFiService::_timer(uint16_t (WiFiService::*durationInSecs)(), bool (WiFiSe
     }
 
     if ((this->*isFinished)() == false) {
-        Serial.print(F("\n[WIFI][TIMER] Timed out."));
+        AM_DBG(F("[WIFI][TIMER] Timed out."));
     } else {
-        Serial.print(F("\n[WIFI][TIMER] Stopped."));
+        AM_DBG(F("[WIFI][TIMER] Stopped."));
     }
 }
 
@@ -130,7 +130,7 @@ void WiFiService::_timer(uint16_t (WiFiService::*durationInSecs)(), bool (WiFiSe
 
 // Configures the WiFi settings and server callbacks for the captive portal mode.
 void WiFiService::_setupAP() {
-    Serial.print(F("\n[WIFI][AP] Setting up AP..."));
+    AM_DBG(F("[WIFI][AP] Setting up AP..."));
 
     // Configure the WiFi settings.
     WiFi.mode(WIFI_AP);
@@ -142,60 +142,44 @@ void WiFiService::_setupAP() {
     // Prelong the AP timeout when a client connects.
     WiFi.onEvent([&](WiFiEvent_t event, WiFiEventInfo_t info) {
         _apTimeout = _captivePortalTimeout;
-        Serial.print(F("\n[WIFI][AP] Client connected."));
+        AM_DBG(F("[WIFI][AP] Client connected."));
     },
                  WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_STACONNECTED);
 
     // Open the index page if the client connects via the browser.
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send_P(200, "text/html", indexHTML);
-        Serial.print(F("\n[WIFI][AP] Client connected."));
+        AM_DBG(F("[WIFI][AP] Client connected."));
     });
 
     // Callback for when a device taps the submit button on the captive portal.
     server.on("/get", HTTP_GET, [&](AsyncWebServerRequest *request) {
-        Serial.print(F("\n[WIFI][AP] User has submitted."));
+        AM_DBG(F("[WIFI][AP] User has submitted."));
 
         // Fetch the values from the index page.
         if (request->hasParam("ssid")) {
             ssid = request->getParam("ssid")->value().c_str();
-            Serial.print(F("\n[WIFI][AP] SSID: "));
-            Serial.print(ssid);
+            AM_DBG(F("[WIFI][AP] SSID:"), ssid);
         }
         if (request->hasParam("password")) {
             password = request->getParam("password")->value().c_str();
-            Serial.print(F("\n[WIFI][AP] Password: "));
-            Serial.print(password);
+            AM_DBG(F("[WIFI][AP] Password:"), password);
         }
         if (request->hasParam("deviceName")) {
             deviceName = request->getParam("deviceName")->value().c_str();
-            Serial.print(F("\n[WIFI][AP] Device name: "));
-            Serial.print(deviceName);
+            AM_DBG(F("[WIFI][AP] Device name:"), deviceName);
         }
         if (request->hasParam("ipAddress")) {
             ipAddress = ipAddressFromChar(request->getParam("ipAddress")->value().c_str());
-            Serial.print(F("\n[WIFI][AP] IP address: "));
-            Serial.print(request->getParam("ipAddress")->value().c_str());
+            AM_DBG(F("[WIFI][AP] IP address:"), request->getParam("ipAddress")->value().c_str());
         }
-        if (request->hasParam("startAPBtnPin")) {
-            startAPBtnPin = atoi(request->getParam("startAPBtnPin")->value().c_str());
-            Serial.print(F("\n[WIFI][AP] Start AP button pin: "));
-            Serial.print(startAPBtnPin);
-        }
-        if (request->hasParam("midiControlNum")) {
-            midiControlNum = atoi(request->getParam("midiControlNum")->value().c_str());
-            Serial.print(F("\n[WIFI][AP] MIDI control number: "));
-            Serial.print(midiControlNum);
-        }
-        if (request->hasParam("controlType")) {
-            controlType = controlTypeFromChar(request->getParam("controlType")->value().c_str());
-            Serial.print(F("\n[WIFI][AP] Control type: "));
-            Serial.print(request->getParam("controlType")->value().c_str());
+        if (request->hasParam("setupType")) {
+            setupType = setupTypeFromChar(request->getParam("setupType")->value().c_str());
+            AM_DBG(F("[WIFI][AP] Setup type:"), request->getParam("setupType")->value().c_str());
         }
         if (request->hasParam("pixelCount")) {
             pixelCount = strtol(request->getParam("pixelCount")->value().c_str(), NULL, 0);
-            Serial.print(F("\n[WIFI][AP] Pixel count: "));
-            Serial.print(pixelCount);
+            AM_DBG(F("[WIFI][AP] Pixel count:"), pixelCount);
         }
 
         // Open the info page.
@@ -205,9 +189,8 @@ void WiFiService::_setupAP() {
         _hasSubmitted = true;
     });
 
-    Serial.print(F("\n[WIFI][AP] Set up AP."));
-    Serial.print(F("\n[WIFI][AP] AP IP address: "));
-    Serial.print(WiFi.softAPIP());
+    AM_DBG(F("[WIFI][AP] Set up AP."));
+    AM_DBG(F("[WIFI][AP] AP IP address:"), WiFi.softAPIP());
 }
 
 // Processes an AP request.
@@ -217,7 +200,7 @@ void WiFiService::_processAPRequest() {
 
 // Starts the captive portal AP.
 void WiFiService::_startAP() {
-    Serial.print(F("\n[WIFI][AP] Starting AP..."));
+    AM_DBG(F("[WIFI][AP] Starting AP..."));
 
     dnsServer.start(53, "*", WiFi.softAPIP());
 
@@ -226,20 +209,20 @@ void WiFiService::_startAP() {
     server.addHandler(new CaptiveRequestHandler).setFilter(ON_AP_FILTER);
     server.begin();
 
-    Serial.print(F("\n[WIFI][AP] Started AP."));
+    AM_DBG(F("[WIFI][AP] Started AP."));
 
     _timer(&WiFiService::_getAPTimeout, &WiFiService::_getHasSubmitted, &WiFiService::_processAPRequest);
 }
 
 // Stops the captive portal AP.
 void WiFiService::_stopAP() {
-    Serial.print(F("\n[WIFI][AP] Stopping AP..."));
+    AM_DBG(F("[WIFI][AP] Stopping AP..."));
 
     server.end();
     dnsServer.stop();
     WiFi.softAPdisconnect();
 
-    Serial.print(F("\n[WIFI][AP] Stopped AP."));
+    AM_DBG(F("[WIFI][AP] Stopped AP."));
 }
 
 // ----------------------------------------------------------------------------
@@ -247,7 +230,7 @@ void WiFiService::_stopAP() {
 // ----------------------------------------------------------------------------
 
 void WiFiService::_startSTA(void (*onDisconnected)()) {
-    Serial.print(F("\n[WIFI][STA] Starting STA..."));
+    AM_DBG(F("[WIFI][STA] Starting STA..."));
 
     // Set the WiFi mode.
     WiFi.mode(WIFI_MODE_STA);
@@ -258,27 +241,21 @@ void WiFiService::_startSTA(void (*onDisconnected)()) {
     // Start the WiFi.
     WiFi.begin(ssid, password);
 
-    Serial.print(F("\n[WIFI][STA] Started STA."));
-    Serial.print(F("\n[WIFI][STA] Connecting to "));
-    Serial.print(ssid);
-    Serial.print(F("..."));
+    AM_DBG(F("[WIFI][STA] Started STA."));
+    AM_DBG(F("[WIFI][STA] Connecting to"), ssid, F("..."));
 
     _timer(&WiFiService::_getSTATimeout, &WiFiService::_getIsWiFiConnected, &WiFiService::_emptyFunction);
 
     if (!_getIsWiFiConnected()) {
-        Serial.print(F("\n[WIFI][STA] Failed to connect to "));
-        Serial.print(ssid);
-        Serial.print(F("."));
+        AM_DBG(F("[WIFI][STA] Failed to connect to"), ssid, F("."));
     } else {
-        Serial.print(F("\n[WIFI][STA] Connected to "));
-        Serial.print(ssid);
-        Serial.print(F("."));
-        Serial.print(F("\n[WIFI] All done!"));
+        AM_DBG(F("[WIFI][STA] Connected to"), ssid, F("."));
+        AM_DBG(F("[WIFI] All done!"));
 
         // Call onDisconnected when disconnected from the WiFi.
         // This must be called after already connected to the WiFi.
         WiFi.onEvent([&](WiFiEvent_t event, WiFiEventInfo_t info) {
-            Serial.print(F("\n[WIFI][STA] Disconnected."));
+            AM_DBG(F("[WIFI][STA] Disconnected."));
             onDisconnected();
         },
                      WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);

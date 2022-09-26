@@ -1,5 +1,9 @@
 #include "helpers.h"
 
+// ----------------------------------------------------------------------------
+// IPAddress conversion
+// ----------------------------------------------------------------------------
+
 // Returns an IPAddress from the given string, e.g. "192.168.4.1" to IPAddress(192,168,4,1).
 IPAddress ipAddressFromChar(const char *ipStr) {
     IPAddress newIP;
@@ -17,12 +21,16 @@ const char *ipAddressToChar(const IPAddress ip) {
     return newIPStr;
 }
 
-// Returns a ControlType from a string.
-ControlType controlTypeFromChar(const char *value) {
-    if (value == "rgbStrip") {
-        return RGB_STRIP;
-    } else if (value == "led") {
+// ----------------------------------------------------------------------------
+// SetupType conversion
+// ----------------------------------------------------------------------------
+
+// Returns a SetupType from a string.
+SetupType setupTypeFromChar(const char *value) {
+    if (value == "led") {
         return LED;
+    } else if (value == "rgbLED") {
+        return RGB_LED;
     } else if (value == "relay") {
         return RELAY;
     } else {
@@ -30,15 +38,13 @@ ControlType controlTypeFromChar(const char *value) {
     }
 }
 
-// Returns a string from a ControlType.
-const char *controlTypeToChar(const ControlType value) {
+// Returns a string from a SetupType.
+const char *setupTypeToChar(const SetupType value) {
     switch (value) {
-        case NEOPIXEL_STRIP:
-            return "neoPixelStrip";
-        case RGB_STRIP:
-            return "rgbStrip";
         case LED:
             return "led";
+        case RGB_LED:
+            return "rgbLED";
         case RELAY:
             return "relay";
         default:
