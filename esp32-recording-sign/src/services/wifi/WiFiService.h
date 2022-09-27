@@ -10,24 +10,20 @@
 class WiFiService {
    public:
     WiFiService();
-    void wifiConfig(const char* ssid,
-                    const char* password,
-                    const IPAddress ipAddress,
-                    const char* deviceName,
-                    const uint8_t startAPBtnPin,
-                    const uint16_t apTimeout,
-                    const uint16_t captivePortalTimeout,
-                    const uint16_t staTimeout);
+    void config(const char* ssid,
+                const char* password,
+                const IPAddress ipAddress,
+                const char* deviceName,
+                const uint16_t apTimeout,
+                const uint16_t captivePortalTimeout,
+                const uint16_t staTimeout);
 
-    void settingsConfig(const SetupType setupType, const uint16_t pixelCount);
-
-    void begin(void (*onSave)(), void (*onFailedToConnect)(), void (*onDisconnected)());
+    void begin(const bool startInAPMode, void (*onSave)(), void (*onFailedToConnect)(), void (*onDisconnected)());
 
     const char* ssid;
     const char* password;
     const char* deviceName;
     IPAddress ipAddress;
-    uint8_t startAPBtnPin;
     SetupType setupType;
     uint16_t pixelCount;
 

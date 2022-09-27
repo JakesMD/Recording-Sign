@@ -18,9 +18,9 @@ const char *ipAddressToChar(const IPAddress ip);
 
 // The different setups for the recording sign.
 enum SetupType { LED,
-                 RGB_LED,
-                 NEOPIXEL_STRIP,
-                 RELAY };
+                 RGB,
+                 RELAY,
+                 NEOPIXEL };
 
 SetupType setupTypeFromChar(const char *value);
 const char *setupTypeToChar(const SetupType value);

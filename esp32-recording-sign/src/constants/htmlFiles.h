@@ -86,18 +86,18 @@ const char indexHTML[] PROGMEM = R"rawliteral(
             <input type="text" id="ipAddress" name="ipAddress" required="true" pattern="((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}"><br>
 
             <label for="deviceName">Device Name</label><br>
-            <input type="text" id="deviceName" name="deviceName" value="Recording Sign" maxlength="30"><br>
+            <input type="text" id="deviceName" name="deviceName" required="true" value="Recording Sign" maxlength="30"><br>
 
             <label for="setupType">Setup</label><br>
             <select id="setupType" name="setupType">
-                <option value="neoPixelStrip">NeoPixel Strip</option>
-                <option value="led">LED</option>
-                <option value="rgbLED">RGB Strip</option>
-                <option value="relay">Relay</option>
+                <option value="LED">LED</option>
+                <option value="RGB">RGB LED / Strip</option>
+                <option value="RELAY">Relay</option>
+                <option value="NEOPIXEL">NeoPixel</option>
             </select><br>
 
             <label for="pixelCount">Number of Pixels (for NeoPixel strip only)</label><br>
-            <input type="number" id="pixelCount" name="pixelCount" value="16" min="1" max="1000"><br>
+            <input type="number" id="pixelCount" name="pixelCount" required="true" value="16" min="1" max="1000"><br>
 
             <input type="submit" value="GO!">
         
