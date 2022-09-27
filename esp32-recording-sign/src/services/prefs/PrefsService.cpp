@@ -50,7 +50,7 @@ void PrefsService::_reset() {
         savePassword("");
         saveIPAddress(IPAddress(0, 0, 0, 0));
         saveDeviceName("Recording Sign");
-        saveSetupType(NEOPIXEL_STRIP);
+        saveSetupType(NEOPIXEL);
         savePixelCount(16);
 
         AM_DBG(F("[PREFS] Reset."));
@@ -91,7 +91,9 @@ void PrefsService::_printWriteLog(const char* key, T value, const bool obscureVa
 uint8_t PrefsService::_readUInt8(const char* key, const uint8_t defaultValue) {
     _openSpace(true);
     uint8_t value = _prefs.getUChar(key, defaultValue);
+
     _printReadLog(key, value);
+
     _closeSpace();
     return value;
 }
@@ -99,7 +101,7 @@ uint8_t PrefsService::_readUInt8(const char* key, const uint8_t defaultValue) {
 // Writes a uint8_t to the space.
 void PrefsService::_writeUInt8(const char* key, const uint8_t value) {
     _openSpace(false);
-    if (!_prefs.isKey(key) || _prefs.getUChar(key) != value) {
+    if (_prefs.getUChar(key) != value) {
         _prefs.putUChar(key, value);
         _printWriteLog(key, value);
     }
@@ -110,7 +112,9 @@ void PrefsService::_writeUInt8(const char* key, const uint8_t value) {
 uint16_t PrefsService::_readUInt16(const char* key, const uint16_t defaultValue) {
     _openSpace(true);
     uint16_t value = _prefs.getUShort(key, defaultValue);
+
     _printReadLog(key, value);
+
     _closeSpace();
     return value;
 }
@@ -118,7 +122,7 @@ uint16_t PrefsService::_readUInt16(const char* key, const uint16_t defaultValue)
 // Writes a uint16_t to the space.
 void PrefsService::_writeUInt16(const char* key, const uint16_t value) {
     _openSpace(false);
-    if (!_prefs.isKey(key) || _prefs.getUShort(key) != value) {
+    if (_prefs.getUShort(key) != value) {
         _prefs.putUShort(key, value);
         _printWriteLog(key, value);
     }
@@ -134,6 +138,7 @@ const char* PrefsService::_readConstChar(const char* key, const char* defaultVal
     strcpy(value, valueStr.c_str());
 
     _printReadLog(key, value, obscureValue);
+
     _closeSpace();
     return value;
 }
@@ -141,10 +146,23 @@ const char* PrefsService::_readConstChar(const char* key, const char* defaultVal
 // Writes a const char* to the space.
 void PrefsService::_writeConstChar(const char* key, const char* value, const bool obscureValue) {
     _openSpace(false);
-    if (!_prefs.isKey(key) || _prefs.getString(key).c_str() != value) {
-        _prefs.putString(key, value);
-        _printWriteLog(key, value, obscureValue);
+
+    char* oldValue;
+
+    if (_prefs.isKey(key)) {
+        const String oldValueStr = _prefs.getString(key, "null");
+        oldValue = new char[oldValueStr.length() + 1];
+        strcpy(oldValue, oldValueStr.c_str());
     }
+
+    char* newValue = new char[strlen(value) + 1];
+    strcpy(newValue, value);
+
+    if (!_prefs.isKey(key) || oldValue != newValue) {
+        _prefs.putString(key, newValue);
+        _printWriteLog(key, newValue, obscureValue);
+    }
+
     _closeSpace();
 }
 
@@ -159,7 +177,7 @@ const char* PrefsService::getSSID() {
 
 // Saves the ssid to the space.
 void PrefsService::saveSSID(const char* ssid) {
-    if (sizeof(ssid) / sizeof(char) < 30) {
+    if (sizeof(ssid) / sizeof(char) < 50) {
         _writeConstChar("ssid", ssid);
     } else {
         AM_DBG(F("[PREFS][WARNING] Save ssid declined."));
@@ -168,13 +186,13 @@ void PrefsService::saveSSID(const char* ssid) {
 
 // Reads the password from the space.
 const char* PrefsService::getPassword() {
-    return _readConstChar("password", "", true);
+    return _readConstChar("password", "");
 };
 
 // Writes the password to the space.
 void PrefsService::savePassword(const char* password) {
-    if (sizeof(password) / sizeof(char) < 30) {
-        _writeConstChar("password", password, true);
+    if (sizeof(password) / sizeof(char) < 50) {
+        _writeConstChar("password", password);
     } else {
         AM_DBG(F("[PREFS][WARNING] Save password declined."));
     }
@@ -214,7 +232,7 @@ void PrefsService::saveDeviceName(const char* deviceName) {
 
 // Reads the setup type from the space.
 SetupType PrefsService::getSetupType() {
-    return setupTypeFromChar(_readConstChar("setupType", "neoPixelStrip"));
+    return setupTypeFromChar(_readConstChar("setupType", "LED"));
 };
 
 // Writes the setup type to the space.

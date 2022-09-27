@@ -27,14 +27,14 @@ const char *ipAddressToChar(const IPAddress ip) {
 
 // Returns a SetupType from a string.
 SetupType setupTypeFromChar(const char *value) {
-    if (value == "led") {
-        return LED;
-    } else if (value == "rgbLED") {
-        return RGB_LED;
-    } else if (value == "relay") {
+    if (strcmp(value, "NEOPIXEL") == 0) {
+        return NEOPIXEL;
+    } else if (strcmp(value, "RELAY") == 0) {
         return RELAY;
+    } else if (strcmp(value, "RGB") == 0) {
+        return RGB;
     } else {
-        return NEOPIXEL_STRIP;
+        return LED;
     }
 }
 
@@ -42,12 +42,12 @@ SetupType setupTypeFromChar(const char *value) {
 const char *setupTypeToChar(const SetupType value) {
     switch (value) {
         case LED:
-            return "led";
-        case RGB_LED:
-            return "rgbLED";
+            return "LED";
+        case RGB:
+            return "RGB";
         case RELAY:
-            return "relay";
-        default:
-            return "neoPixelStrip";
+            return "RELAY";
+        case NEOPIXEL:
+            return "NEOPIXEL";
     }
 }

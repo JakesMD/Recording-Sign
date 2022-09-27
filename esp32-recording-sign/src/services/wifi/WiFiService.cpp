@@ -46,28 +46,20 @@ class CaptiveRequestHandler : public AsyncWebHandler {
 WiFiService::WiFiService() {}
 
 // Sets the settings specifically for the wifi.
-void WiFiService::wifiConfig(const char *newSSID,
-                             const char *newPassword,
-                             const IPAddress newIPAddress,
-                             const char *newDeviceName,
-                             const uint8_t newStartAPBtnPin,
-                             const uint16_t newAPTimeout,
-                             const uint16_t newCaptivePortalTimeout,
-                             const uint16_t newSTATimeout) {
+void WiFiService::config(const char *newSSID,
+                         const char *newPassword,
+                         const IPAddress newIPAddress,
+                         const char *newDeviceName,
+                         const uint16_t newAPTimeout,
+                         const uint16_t newCaptivePortalTimeout,
+                         const uint16_t newSTATimeout) {
     ssid = newSSID;
     password = newPassword;
     ipAddress = newIPAddress;
     deviceName = newDeviceName;
-    startAPBtnPin = newStartAPBtnPin;
     _apTimeout = newAPTimeout;
     _captivePortalTimeout = newCaptivePortalTimeout;
     _staTimeout = newSTATimeout;
-}
-
-// Sets the user settings for the recording sign in general.
-void WiFiService::settingsConfig(const SetupType newSetupType, const uint16_t newPixelCount) {
-    SetupType setupType = newSetupType;
-    uint16_t pixelCount = newPixelCount;
 }
 
 // ----------------------------------------------------------------------------
@@ -153,32 +145,56 @@ void WiFiService::_setupAP() {
     });
 
     // Callback for when a device taps the submit button on the captive portal.
-    server.on("/get", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    server.on("/get", HTTP_GET, [this](AsyncWebServerRequest *request) {
         AM_DBG(F("[WIFI][AP] User has submitted."));
 
         // Fetch the values from the index page.
         if (request->hasParam("ssid")) {
-            ssid = request->getParam("ssid")->value().c_str();
+            const char *value = request->getParam("ssid")->value().c_str();
+            char *newValue = new char[strlen(value) + 1];
+            strcpy(newValue, value);
+
+            ssid = newValue;
             AM_DBG(F("[WIFI][AP] SSID:"), ssid);
         }
         if (request->hasParam("password")) {
-            password = request->getParam("password")->value().c_str();
+            const char *value = request->getParam("password")->value().c_str();
+            char *newValue = new char[strlen(value) + 1];
+            strcpy(newValue, value);
+
+            password = newValue;
             AM_DBG(F("[WIFI][AP] Password:"), password);
         }
         if (request->hasParam("deviceName")) {
-            deviceName = request->getParam("deviceName")->value().c_str();
+            const char *value = request->getParam("deviceName")->value().c_str();
+            char *newValue = new char[strlen(value) + 1];
+            strcpy(newValue, value);
+
+            deviceName = newValue;
             AM_DBG(F("[WIFI][AP] Device name:"), deviceName);
         }
         if (request->hasParam("ipAddress")) {
-            ipAddress = ipAddressFromChar(request->getParam("ipAddress")->value().c_str());
-            AM_DBG(F("[WIFI][AP] IP address:"), request->getParam("ipAddress")->value().c_str());
+            const char *value = request->getParam("ipAddress")->value().c_str();
+            char *newValue = new char[strlen(value) + 1];
+            strcpy(newValue, value);
+
+            ipAddress = ipAddressFromChar(newValue);
+            AM_DBG(F("[WIFI][AP] IP address:"), ipAddressToChar(ipAddress));
         }
         if (request->hasParam("setupType")) {
-            setupType = setupTypeFromChar(request->getParam("setupType")->value().c_str());
-            AM_DBG(F("[WIFI][AP] Setup type:"), request->getParam("setupType")->value().c_str());
+            const char *value = request->getParam("setupType")->value().c_str();
+            char *newValue = new char[strlen(value) + 1];
+            strcpy(newValue, value);
+
+            setupType = setupTypeFromChar(newValue);
+            AM_DBG(F("[WIFI][AP] Setup type:"), setupTypeToChar(setupType));
         }
         if (request->hasParam("pixelCount")) {
-            pixelCount = strtol(request->getParam("pixelCount")->value().c_str(), NULL, 0);
+            const char *value = request->getParam("pixelCount")->value().c_str();
+            char *newValue = new char[strlen(value) + 1];
+            strcpy(newValue, value);
+
+            pixelCount = strtol(newValue, NULL, 0);
             AM_DBG(F("[WIFI][AP] Pixel count:"), pixelCount);
         }
 
@@ -267,12 +283,9 @@ void WiFiService::_startSTA(void (*onDisconnected)()) {
 // ----------------------------------------------------------------------------
 
 // Connects to the wifi network or starts the captive portal AP.
-void WiFiService::begin(void (*onSave)(), void (*onFailedToConnect)(), void (*onDisconnected)()) {
-    // Setup the button.
-    pinMode(startAPBtnPin, INPUT_PULLUP);
-
+void WiFiService::begin(const bool startInAPMode, void (*onSave)(), void (*onFailedToConnect)(), void (*onDisconnected)()) {
     // For starting in AP mode.
-    if (ssid == "" || digitalRead(startAPBtnPin) == HIGH) {
+    if (startInAPMode) {
         _setupAP();
         _startAP();
         _stopAP();
